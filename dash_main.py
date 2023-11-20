@@ -35,6 +35,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen.fill(BLUE)
 
 SPEED = 1
+SCORE = 0
 font = pygame.font.SysFont("Broadway", 60)
 welcome = font.render("Welcome", True, BLUE)
 
@@ -53,28 +54,33 @@ class Cloud(pygame.sprite.Sprite):
         self.direction = [choice((-1, 1)), choice((-1, 1))]
         self.pop = -1
 
+    def burst(self):
+        self.pop = 3
+        self.image = pygame.image.load(os.path.join("assets", "cloud_pop.png"))
+        self.image.set_colorkey(WHITE)
+
     def move(self):
-        global SCORE
         if self.pop > 0:
             self.pop -= 1
         elif self.pop == 0:
             self.kill()
-        turn = randint(0, 20)
-        if turn > 19:
-            self.direction = [choice((-1, 1)), choice((-1, 1))]
-        if self.rect.bottom > SCREEN_HEIGHT:
-            self.direction[1] = -1
-        if self.rect.right > SCREEN_WIDTH:
-            self.direction[0] = -1
-        if self.rect.left < 0:
-            self.direction[0] = 1
-        if self.rect.top < 0:
-            self.direction[1] = 1
-        vector = (randint(0, SPEED * 2) * self.direction[0],
-                  randint(0, SPEED * 2) * self.direction[1],
-                  )
+        else:
+            turn = randint(0, 20)
+            if turn > 19:
+                self.direction = [choice((-1, 1)), choice((-1, 1))]
+            if self.rect.bottom > SCREEN_HEIGHT:
+                self.direction[1] = -1
+            if self.rect.right > SCREEN_WIDTH:
+                self.direction[0] = -1
+            if self.rect.left < 0:
+                self.direction[0] = 1
+            if self.rect.top < 0:
+                self.direction[1] = 1
+            vector = (randint(0, SPEED * 2) * self.direction[0],
+                      randint(0, SPEED * 2) * self.direction[1],
+                      )
 
-        self.rect.move_ip(vector)
+            self.rect.move_ip(vector)
 
 
 # create sprites
@@ -131,6 +137,7 @@ def main():
 
     # main loop
     while True:
+        global SCORE
         screen.fill(BLUE)
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
@@ -142,6 +149,10 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+        for sprite in pygame.sprite.spritecollide(P1, all_sprites, False):
+            if sprite != P1 and sprite.pop == -1:
+                sprite.burst()
+                SCORE += 1
         for sprite in all_sprites:
             sprite.move()
             screen.blit(sprite.image, sprite.rect.center)
