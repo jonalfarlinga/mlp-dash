@@ -2,14 +2,14 @@
 import pygame
 import os
 import sys
-from random import randint
+from random import randint, choice
 from math import sqrt, ceil
 
 # initialize the pygame module
 pygame.init()
 
 # Setting up FPS
-FPS = 24
+FPS = 30
 FramePerSec = pygame.time.Clock()
 
 # load and set the logo
@@ -50,24 +50,31 @@ class Cloud(pygame.sprite.Sprite):
             randint(100, SCREEN_WIDTH-100),
             randint(100, SCREEN_HEIGHT-100)
         )
+        self.direction = [choice((-1, 1)), choice((-1, 1))]
         self.pop = -1
 
     def move(self):
         global SCORE
         if self.pop > 0:
             self.pop -= 1
-        if self.pop == 0:
+        elif self.pop == 0:
             self.kill()
-        if self.age == 3:
-            vector = (randint(0, SPEED * 2) - SPEED,
-                      randint(0, SPEED * 2) - SPEED,
-                      )
-            self.rect.move_ip(vector)
-            if (self.rect.bottom > SCREEN_HEIGHT or
-               self.rect.right > SCREEN_WIDTH or
-               self.rect.left < 0 or
-               self.rect.top < 0):
-                self.kill()
+        turn = randint(0, 20)
+        if turn > 19:
+            self.direction = [choice((-1, 1)), choice((-1, 1))]
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.direction[1] = -1
+        if self.rect.right > SCREEN_WIDTH:
+            self.direction[0] = -1
+        if self.rect.left < 0:
+            self.direction[0] = 1
+        if self.rect.top < 0:
+            self.direction[1] = 1
+        vector = (randint(0, SPEED * 2) * self.direction[0],
+                  randint(0, SPEED * 2) * self.direction[1],
+                  )
+
+        self.rect.move_ip(vector)
 
 
 # create sprites
@@ -93,12 +100,12 @@ class Dash(pygame.sprite.Sprite):
         direction_y = self.lure[1] - self.rect.center[1]
 
         # Normalize the direction vector (convert it to a unit vector)
-        if dist > 1:
+        if dist > 3:
             direction_x /= dist
             direction_y /= dist
             # Calculate the travel distance for this turn
-            travel_x = ceil(direction_x) * SPEED
-            travel_y = ceil(direction_y) * SPEED
+            travel_x = ceil(direction_x) * 2
+            travel_y = ceil(direction_y) * 2
         else:
             travel_x = 0
             travel_y = 0
