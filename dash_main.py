@@ -3,7 +3,7 @@ import pygame
 import os
 import sys
 from random import randint
-from math import sqrt
+from math import sqrt, ceil
 
 # initialize the pygame module
 pygame.init()
@@ -50,11 +50,14 @@ class Cloud(pygame.sprite.Sprite):
             randint(100, SCREEN_WIDTH-100),
             randint(100, SCREEN_HEIGHT-100)
         )
-        self.age = 0
+        self.pop = -1
 
     def move(self):
         global SCORE
-        self.age += 1
+        if self.pop > 0:
+            self.pop -= 1
+        if self.pop == 0:
+            self.kill()
         if self.age == 3:
             vector = (randint(0, SPEED * 2) - SPEED,
                       randint(0, SPEED * 2) - SPEED,
@@ -65,7 +68,6 @@ class Cloud(pygame.sprite.Sprite):
                self.rect.left < 0 or
                self.rect.top < 0):
                 self.kill()
-            self.age = 0
 
 
 # create sprites
@@ -77,25 +79,29 @@ class Dash(pygame.sprite.Sprite):
         self.image.set_colorkey((WHITE))
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
-        self.lure = (200, 200)
+        self.lure = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
 
     def move(self):
         # Function to calculate distance between two points
         x = (self.rect.centerx - self.lure[0]) ** 2
         y = (self.rect.centery - self.lure[1]) ** 2
         dist = sqrt(x + y)
+        dist /= 10
+
         # Calculate the direction vector
         direction_x = self.lure[0] - self.rect.center[0]
         direction_y = self.lure[1] - self.rect.center[1]
 
         # Normalize the direction vector (convert it to a unit vector)
-        if dist > 2:
+        if dist > 1:
             direction_x /= dist
             direction_y /= dist
-
-        # Calculate the travel distance for this turn
-        travel_x = int(direction_x * SPEED)
-        travel_y = int(direction_y * SPEED)
+            # Calculate the travel distance for this turn
+            travel_x = ceil(direction_x) * SPEED
+            travel_y = ceil(direction_y) * SPEED
+        else:
+            travel_x = 0
+            travel_y = 0
         self.rect.move_ip((travel_x, travel_y))
 
 
