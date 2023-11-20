@@ -5,6 +5,7 @@ import sys
 from random import randint, choice
 from math import sqrt, ceil
 
+
 # initialize the pygame module
 pygame.init()
 pygame.mixer.init()
@@ -26,7 +27,7 @@ BLUE = (70, 170, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-# load and set the logo
+# load and set the logo and headline
 logo = pygame.image.load(os.path.join("assets", "pinky_logo.png"))
 pygame.display.set_icon(logo)
 pygame.display.set_caption("Rainbow's Dash!")
@@ -49,15 +50,21 @@ dash_talk = [
     pygame.mixer.Sound(os.path.join("assets", "sounds", "iron-pony.mp3")),
     pygame.mixer.Sound(os.path.join("assets", "sounds", "snack-time.mp3")),
 ]
+pinkie_talk = pygame.mixer.Sound(
+    os.path.join("assets", "sounds", "eye-in-sky.mp3")
+)
 SPEED = 1
 SCORE = 0
-font = pygame.font.SysFont("Broadway", 60)
+font = pygame.font.SysFont("Arial", 60)
 welcome = font.render("Welcome", True, BLUE)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 500
 
 # create a surface on screen that has the size of 240 x 180
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode(
+    (SCREEN_WIDTH, SCREEN_HEIGHT),
+    pygame.FULLSCREEN
+)
 screen.fill(BLUE)
 
 
@@ -75,12 +82,15 @@ class Cloud(pygame.sprite.Sprite):
         self.direction = [choice((-1, 1)), choice((-1, 1))]
         self.pop = -1
 
+    # turns into a cloudburst, and starts the kill timer at 3
     def burst(self):
         self.pop = 3
         self.image = pygame.image.load(os.path.join("assets", "cloud_pop.png"))
         self.image.set_colorkey(WHITE)
         choice(whoosh).play()
 
+    # kills a cloudburst after 3 loops, or moves a cloud randomly, turning away
+    # from edges
     def move(self):
         if self.pop > 0:
             self.pop -= 1
@@ -114,29 +124,31 @@ class Dash(pygame.sprite.Sprite):
         self.image.set_colorkey((WHITE))
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
-        self.lure = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        self.lurex = SCREEN_WIDTH//2
+        self.lurey = SCREEN_HEIGHT//2
 
+    # rotates the Dash image
     def step(self):
         self.im += 1
         if self.im == len(rainbow):
             self.im = 0
         self.image = rainbow[self.im]
 
+    # moves Dash along x and y at 20px per tick.
     def move(self):
         # Function to calculate distance between two points
-        x = (self.rect.centerx - self.lure[0]) ** 2
-        y = (self.rect.centery - self.lure[1]) ** 2
-        dist = sqrt(x + y)
-        dist /= 10
+        x = (self.rect.centerx - self.lurex) ** 2
+        y = (self.rect.centery - self.lurey) ** 2
+        distance = sqrt(x + y) / 10
 
         # Calculate the direction vector
-        direction_x = self.lure[0] - self.rect.center[0]
-        direction_y = self.lure[1] - self.rect.center[1]
+        direction_x = self.lurex - self.rect.centerx
+        direction_y = self.lurey - self.rect.centery
 
         # Normalize the direction vector (convert it to a unit vector)
-        if dist > 3:
-            direction_x /= dist
-            direction_y /= dist
+        if distance > 3:
+            direction_x /= distance
+            direction_y /= distance
             # Calculate the travel distance for this turn
             travel_x = ceil(direction_x) * 2
             travel_y = ceil(direction_y) * 2
@@ -149,17 +161,49 @@ class Dash(pygame.sprite.Sprite):
         choice(dash_talk).play()
 
 
+class Pinkie(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load(
+            os.path.join(
+                "assets",
+                "pinkie_balloons_160.png"
+            )
+        )
+        self.image.set_colorkey((WHITE))
+        self.rect = self.image.get_rect()
+        self.rect.center = (
+            SCREEN_WIDTH-200,
+            SCREEN_HEIGHT
+        )
+        self.direction = [0, -1]
+
+    # moves Pinkie up until she floats off screen.
+    def move(self):
+        self.rect.move_ip(0, SPEED * self.direction[1])
+        if self.rect.bottom < -100:
+            self.kill()
+
+
 # Setting up Sprites
 P1 = Dash()
 E1 = Cloud()
 
 # Creating Sprites Groups
-all_sprites = pygame.sprite.Group()
-all_sprites.add(P1)
-all_sprites.add(E1)
+clouds = pygame.sprite.Group()
+clouds.add(E1)
+ponies = pygame.sprite.Group()
+ponies.add(P1)
 
+# initialize User Events
 NEW_CLOUD = pygame.USEREVENT + 1
+PINKIE_FLOAT = pygame.USEREVENT + 2
 pygame.time.set_timer(NEW_CLOUD, 1000)
+pygame.time.set_timer(PINKIE_FLOAT, 30000)
+
+
+"""
+"""
 
 
 # define a main function
@@ -170,37 +214,47 @@ def main():
     while True:
         global SCORE
         screen.fill(BLUE)
+
+        # updates Dash's target as long as mousebutton is pressed
+        if pygame.mouse.get_pressed()[0]:
+            P1.lurex = pygame.mouse.get_pos()[0]
+            P1.lurey = pygame.mouse.get_pos()[1]
+
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                P1.lure = pygame.mouse.get_pos()
-            # only do something if the event is of type QUIT
-            if event.type == NEW_CLOUD and len(all_sprites) < 10:
-                all_sprites.add(Cloud())
+            if event.type == NEW_CLOUD and len(clouds) < 10:
+                clouds.add(Cloud())
+            if event.type == PINKIE_FLOAT and len(ponies) < 2:
+                ponies.add(Pinkie())
+                pinkie_talk.play()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        for sprite in pygame.sprite.spritecollide(P1, all_sprites, False):
-            if sprite != P1 and sprite.pop == -1:
+
+        # check for Dash colliding with clouds
+        for sprite in pygame.sprite.spritecollide(P1, clouds, False):
+            if sprite.pop == -1:
                 sprite.burst()
                 if randint(1, 10) == 10:
                     P1.talk()
                 SCORE += 1
 
-        for sprite in all_sprites:
+        # move and blit all sprites
+        for sprite in clouds:
             sprite.move()
             screen.blit(sprite.image, sprite.rect.center)
-        lure = font.render(str(P1.lure), True, BLACK)
-        P1pos = font.render(str(P1.rect.center), True, BLACK)
-        screen.blit(lure, (25, 25))
-        screen.blit(P1pos, (25, 100))
+        for sprite in ponies:
+            sprite.move()
+            screen.blit(sprite.image, sprite.rect.center)
+
+        # blit score and update display
+        score = font.render(str(SCORE), True, BLACK)
+        screen.blit(score, (25, 25))
 
         pygame.display.update()
         FramePerSec.tick(FPS)
 
 
-# run the main function only if this module is executed as the main script
-# (if you import this as a module then nothing is executed)
 if __name__ == "__main__":
     # call the main function
     main()
