@@ -7,26 +7,52 @@ from math import sqrt, ceil
 
 # initialize the pygame module
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load(
+    os.path.join(
+        "assets",
+        "sounds",
+        "playful-140946.mp3"
+        )
+    )
+pygame.mixer.music.play(-1)
 
 # Setting up FPS
 FPS = 30
 FramePerSec = pygame.time.Clock()
-
-# load and set the logo
-logo = pygame.image.load(os.path.join("assets", "pinky_logo.png"))
-pygame.display.set_icon(logo)
-pygame.display.set_caption("Rainbow's Dash!")
-rainbow = [
-    pygame.image.load(os.path.join("assets", "rainbow1_40.png")),
-    pygame.image.load(os.path.join("assets", "rainbow2_40.png")),
-    pygame.image.load(os.path.join("assets", "rainbow3_40.png")),
-]
 
 # set colors
 BLUE = (70, 170, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+# load and set the logo
+logo = pygame.image.load(os.path.join("assets", "pinky_logo.png"))
+pygame.display.set_icon(logo)
+pygame.display.set_caption("Rainbow's Dash!")
+
+# initialize assets
+rainbow = [
+    pygame.image.load(os.path.join("assets", "rainbow1_40.png")),
+    pygame.image.load(os.path.join("assets", "rainbow2_40.png")),
+    pygame.image.load(os.path.join("assets", "rainbow3_40.png")),
+]
+rainbow[1].set_colorkey(WHITE)
+whoosh = [
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "whoosh_1.mp3")),
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "whoosh_2.mp3"))
+]
+dash_talk = [
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "10-seconds.mp3")),
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "dangers-my.mp3")),
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "here-we-go.mp3")),
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "iron-pony.mp3")),
+    pygame.mixer.Sound(os.path.join("assets", "sounds", "snack-time.mp3")),
+]
+SPEED = 1
+SCORE = 0
+font = pygame.font.SysFont("Broadway", 60)
+welcome = font.render("Welcome", True, BLUE)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 500
 
@@ -34,13 +60,8 @@ SCREEN_HEIGHT = 500
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen.fill(BLUE)
 
-SPEED = 1
-SCORE = 0
-font = pygame.font.SysFont("Broadway", 60)
-welcome = font.render("Welcome", True, BLUE)
 
-
-# create sprites
+# define Cloud Sprite
 class Cloud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -58,6 +79,7 @@ class Cloud(pygame.sprite.Sprite):
         self.pop = 3
         self.image = pygame.image.load(os.path.join("assets", "cloud_pop.png"))
         self.image.set_colorkey(WHITE)
+        choice(whoosh).play()
 
     def move(self):
         if self.pop > 0:
@@ -83,7 +105,7 @@ class Cloud(pygame.sprite.Sprite):
             self.rect.move_ip(vector)
 
 
-# create sprites
+# define Dash sprite
 class Dash(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -93,6 +115,12 @@ class Dash(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
         self.lure = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+
+    def step(self):
+        self.im += 1
+        if self.im == len(rainbow):
+            self.im = 0
+        self.image = rainbow[self.im]
 
     def move(self):
         # Function to calculate distance between two points
@@ -116,6 +144,9 @@ class Dash(pygame.sprite.Sprite):
             travel_x = 0
             travel_y = 0
         self.rect.move_ip((travel_x, travel_y))
+
+    def talk(self):
+        choice(dash_talk).play()
 
 
 # Setting up Sprites
@@ -152,7 +183,10 @@ def main():
         for sprite in pygame.sprite.spritecollide(P1, all_sprites, False):
             if sprite != P1 and sprite.pop == -1:
                 sprite.burst()
+                if randint(1, 10) == 10:
+                    P1.talk()
                 SCORE += 1
+
         for sprite in all_sprites:
             sprite.move()
             screen.blit(sprite.image, sprite.rect.center)
