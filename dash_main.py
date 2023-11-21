@@ -3,7 +3,7 @@ import pygame
 import os
 import sys
 from random import randint, choice
-from math import sqrt, ceil
+from math import sqrt
 
 
 # initialize the pygame module
@@ -63,7 +63,7 @@ SCREEN_HEIGHT = 500
 # create a surface on screen that has the size of 240 x 180
 screen = pygame.display.set_mode(
     (SCREEN_WIDTH, SCREEN_HEIGHT),
-    pygame.FULLSCREEN
+    # pygame.FULLSCREEN
 )
 screen.fill(BLUE)
 
@@ -74,11 +74,10 @@ class Cloud(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(os.path.join("assets", "cloud.png"))
         self.image.set_colorkey((WHITE))
-        self.rect = self.image.get_rect()
-        self.rect.center = (
+        self.rect = self.image.get_rect(center=(
             randint(100, SCREEN_WIDTH-100),
             randint(100, SCREEN_HEIGHT-100)
-        )
+        ))
         self.direction = [choice((-1, 1)), choice((-1, 1))]
         self.pop = -1
 
@@ -119,6 +118,7 @@ class Cloud(pygame.sprite.Sprite):
 class Dash(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
+        self.speed = 10
         self.im = 0
         self.image = rainbow[self.im]
         self.image.set_colorkey((WHITE))
@@ -137,21 +137,22 @@ class Dash(pygame.sprite.Sprite):
     # moves Dash along x and y at 20px per tick.
     def move(self):
         # Function to calculate distance between two points
-        x = (self.rect.centerx - self.lurex) ** 2
-        y = (self.rect.centery - self.lurey) ** 2
-        distance = sqrt(x + y) / 10
+        distance = sqrt(
+            (self.rect.centerx - self.lurex) ** 2 +
+            (self.rect.centery - self.lurey) ** 2
+        )
 
         # Calculate the direction vector
         direction_x = self.lurex - self.rect.centerx
         direction_y = self.lurey - self.rect.centery
 
         # Normalize the direction vector (convert it to a unit vector)
-        if distance > 3:
+        if distance > self.speed:
             direction_x /= distance
             direction_y /= distance
             # Calculate the travel distance for this turn
-            travel_x = ceil(direction_x) * 2
-            travel_y = ceil(direction_y) * 2
+            travel_x = (direction_x) * self.speed
+            travel_y = (direction_y) * self.speed
         else:
             travel_x = 0
             travel_y = 0
@@ -249,7 +250,7 @@ def main():
 
         # blit score and update display
         score = font.render(str(SCORE), True, BLACK)
-        screen.blit(score, (25, 25))
+        screen.blit(score, (25.5, 25.5))
 
         pygame.display.update()
         FramePerSec.tick(FPS)
