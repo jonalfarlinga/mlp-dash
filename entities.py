@@ -7,12 +7,12 @@ import os
 
 def randStart():
     x = randint(100, SCREEN_WIDTH - 300)
-    y = randint(100, SCREEN_HEIGHT - 300)
+    y = randint(100, SCREEN_HEIGHT - 200)
 
     if SCREEN_HEIGHT // 2 - 100 < y < SCREEN_HEIGHT // 2 + 100:
         y += 200
 
-    if SCREEN_WIDTH // 2 - 100 < x < SCREEN_WIDTH // 2 + 100:
+    if SCREEN_WIDTH // 2 - 50 < x < SCREEN_WIDTH // 2 + 50:
         x += 200
     return x, y
 
@@ -121,7 +121,7 @@ class Dash(pygame.sprite.Sprite):
     def hud(self, screen):
         x = 25
         for i in range(self.health):
-            screen.blit(heart, (x, SCREEN_HEIGHT))
+            screen.blit(heart, (x, SCREEN_HEIGHT - 100))
             x += 45
 
     # rotates the Dash image

@@ -23,9 +23,25 @@ welcome = font.render("Welcome", True, BLUE)
 # create a surface on screen that has the set size
 screen = pygame.display.set_mode(
     (SCREEN_WIDTH, SCREEN_HEIGHT),
-    pygame.FULLSCREEN
+    # pygame.FULLSCREEN
 )
 screen.fill(BLUE)
+
+# Setting up Sprites
+P1 = Dash()
+E1 = Cloud()
+
+# Creating Sprites Groups
+clouds = pygame.sprite.Group()
+clouds.add(E1)
+ponies = pygame.sprite.Group()
+ponies.add(P1)
+
+# initialize User Events
+NEW_CLOUD = pygame.USEREVENT + 1
+PINKIE_FLOAT = pygame.USEREVENT + 2
+pygame.time.set_timer(NEW_CLOUD, 1000)
+pygame.time.set_timer(PINKIE_FLOAT, 30000)
 
 
 """
