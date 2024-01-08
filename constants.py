@@ -21,6 +21,7 @@ pygame.mixer.music.load(
         "playful-140946.mp3"
     )
 )
+pygame.mixer.music.set_volume(.5)
 pygame.mixer.music.play(-1)
 whoosh = [
     pygame.mixer.Sound(os.path.join("assets", "sounds", "whoosh_1.mp3")),
@@ -41,6 +42,15 @@ dash_talk = [
     pygame.mixer.Sound(os.path.join("assets", "sounds", "iron-pony.mp3")),
     pygame.mixer.Sound(os.path.join("assets", "sounds", "snack-time.mp3")),
 ]
+for sound in dash_talk:
+    sound.set_volume(.8)
 pinkie_talk = pygame.mixer.Sound(
     os.path.join("assets", "sounds", "eye-in-sky.mp3")
 )
+ouch = pygame.mixer.Sound(os.path.join("assets", "sounds", "ouch.mp3"))
+all_sounds = [
+    whoosh,
+    dash_talk,
+    pinkie_talk,
+    ouch,
+]

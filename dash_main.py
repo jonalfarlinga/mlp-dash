@@ -79,7 +79,7 @@ def game():
         global SCORE
         screen.fill(BLUE)
 
-        # updates Dash's target as long as mousebutton is pressed
+        # updates Dash's target as long as mousebutton1 is pressed
         if pygame.mouse.get_pressed()[0]:
             P1.target(
                 pygame.mouse.get_pos()[0],

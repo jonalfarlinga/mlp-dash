@@ -159,6 +159,13 @@ class Dash(pygame.sprite.Sprite):
 
     def hit(self):
         self.health -= 1
+        for sounds in all_sounds:
+            try:
+                for sound in sounds:
+                    sound.stop()
+            except TypeError:
+                sounds.stop()
+        ouch.play()
 
     def target(self, x, y):
         self.lurex = x
