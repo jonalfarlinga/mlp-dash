@@ -5,8 +5,10 @@ SPEED = 1
 SCORE = 0
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 500
+GAME_STATE = "menu"
 
 # set colors
+RED = (255, 0, 0)
 BLUE = (70, 170, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

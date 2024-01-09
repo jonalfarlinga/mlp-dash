@@ -2,6 +2,7 @@
 import pygame
 import os
 import sys
+import time
 from random import randint
 from constants import *  # noqa
 from entities import Dash, Cloud, Pinkie, Changeling
@@ -18,7 +19,7 @@ pygame.display.set_caption("Rainbow's Dash!")
 
 # initialize assets
 font = pygame.font.SysFont("Arial", 60)
-welcome = font.render("Welcome", True, BLUE)
+welcome = font.render("Welcome", True, BLACK)
 
 # create a surface on screen that has the set size
 screen = pygame.display.set_mode(
@@ -50,10 +51,44 @@ pygame.time.set_timer(PINKIE_FLOAT, 30000)
 
 # define a main function
 def main():
-    pygame.display.flip()
+    while True:
+        pygame.display.flip()
+        # menu loop
+        menu()
+        # main loop
+        game()
 
-    # main loop
-    game()
+
+def menu():
+    global GAME_STATE
+    go_button = pygame.Surface((200, 100))
+    go_button.fill(RED)
+    go_button.blit(font.render("Play!", True, BLACK), (40, 15))
+    go_button_rect = go_button.get_rect()
+    go_button_rect.center = (
+        SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+    )
+
+    while GAME_STATE == "menu":
+        screen.fill(BLUE)
+        screen.blit(welcome, (SCREEN_WIDTH // 2 - 100, 100))
+        screen.blit(
+            go_button,
+            (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 50)
+        )
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if pygame.mouse.get_pressed()[0]:
+            if go_button_rect.collidepoint(pygame.mouse.get_pos()):
+                GAME_STATE = "play"
+                time.sleep(50)
+        pygame.display.update()
+        FramePerSec.tick(FPS)
+        time.sleep(1)
 
 
 def game():
@@ -75,7 +110,7 @@ def game():
     pygame.time.set_timer(NEW_CLOUD, 3000)
     pygame.time.set_timer(PINKIE_FLOAT, 30000)
 
-    while True:
+    while GAME_STATE == "play":
         global SCORE
         screen.fill(BLUE)
 
@@ -128,6 +163,7 @@ def game():
         screen.blit(score, (25, 25))
         P1.hud(screen)
 
+        time.sleep(1)
         pygame.display.update()
         FramePerSec.tick(FPS)
 
