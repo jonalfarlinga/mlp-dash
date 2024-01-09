@@ -2,7 +2,6 @@
 import pygame
 import os
 import sys
-import time
 from random import randint
 from constants import *  # noqa
 from entities import Dash, Cloud, Pinkie, Changeling
@@ -41,7 +40,7 @@ ponies.add(P1)
 # initialize User Events
 NEW_CLOUD = pygame.USEREVENT + 1
 PINKIE_FLOAT = pygame.USEREVENT + 2
-pygame.time.set_timer(NEW_CLOUD, 1000)
+pygame.time.set_timer(NEW_CLOUD, 500)
 pygame.time.set_timer(PINKIE_FLOAT, 30000)
 
 
@@ -65,8 +64,8 @@ def menu():
     go_button.fill(RED)
     go_button.blit(font.render("Play!", True, BLACK), (40, 15))
     go_button_rect = go_button.get_rect()
-    go_button_rect.center = (
-        SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+    go_button_rect.topleft = (
+        SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 50
     )
 
     while GAME_STATE == "menu":
@@ -85,13 +84,14 @@ def menu():
         if pygame.mouse.get_pressed()[0]:
             if go_button_rect.collidepoint(pygame.mouse.get_pos()):
                 GAME_STATE = "play"
-                time.sleep(50)
+                pygame.time.wait(50)
         pygame.display.update()
         FramePerSec.tick(FPS)
-        time.sleep(1)
+        pygame.time.wait(1)
 
 
 def game():
+    global GAME_STATE
     # Setting up Sprites
     P1 = Dash()
     # Creating Sprites Groups
@@ -113,6 +113,7 @@ def game():
     while GAME_STATE == "play":
         global SCORE
         screen.fill(BLUE)
+        screen.blit(font.render(GAME_STATE, True, BLACK), (700, 100))
 
         # updates Dash's target as long as mousebutton1 is pressed
         if pygame.mouse.get_pressed()[0]:
@@ -163,7 +164,12 @@ def game():
         screen.blit(score, (25, 25))
         P1.hud(screen)
 
-        time.sleep(1)
+        if P1.health < 1:
+            GAME_STATE = "menu"
+        else:
+            GAME_STATE = "play"
+
+        pygame.time.wait(1)
         pygame.display.update()
         FramePerSec.tick(FPS)
 

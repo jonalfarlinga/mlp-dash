@@ -1,6 +1,6 @@
 # mlp-dash
 
-A game designed for toddlers. Rainbow Dash needs to clean the clouds from the sky so Equestria continues to have sunny days.
+My toddler wanted to join me in playing video games, but she still struggles with hand-eye coordination and connecting keys to on-screen actions. I decided to create this game with an ultra-simple premise and touch-screen compatibility. Rainbow Dash needs to clean the clouds from the sky so Equestria continues to have sunny days. But watch out for the changelings floating about!
 
 # Installing
 
