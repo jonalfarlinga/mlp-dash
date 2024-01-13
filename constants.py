@@ -12,6 +12,8 @@ RED = (255, 0, 0)
 BLUE = (70, 170, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+PINK = (255, 0, 150)
+GOLD = (200, 200, 50)
 
 # initialize the pygame module
 pygame.init()
