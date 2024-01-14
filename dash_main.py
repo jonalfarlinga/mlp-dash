@@ -177,7 +177,7 @@ def game():
 
         if P1.health < 1:
             GAME_STATE = "dead"
-        elif SCORE > 19:
+        elif SCORE > 19 and len(clouds.sprites()) == 0:
             GAME_STATE = 'win'
         else:
             GAME_STATE = "play"
@@ -213,7 +213,8 @@ def dead():
                 pygame.quit()
                 sys.exit()
 
-        if pygame.mouse.get_pressed()[0]:
+        if (SCREEN_WIDTH // 2 - 50 >= yDrop and
+           pygame.mouse.get_pressed()[0]):
             if go_button_rect.collidepoint(pygame.mouse.get_pos()):
                 GAME_STATE = "menu"
                 screen.fill(BLUE)
@@ -226,29 +227,34 @@ def dead():
 
 def win():
     global GAME_STATE
+    yDrop = SCREEN_HEIGHT + 20
     go_button = pygame.Surface((300, 100))
     go_button.fill(GOLD)
     go_button.blit(font.render("You Win!", True, BLACK), (40, 15))
     go_button_rect = go_button.get_rect()
     go_button_rect.topleft = (
-        SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 50
+        SCREEN_WIDTH // 2 - 150, yDrop
     )
 
     while GAME_STATE == "win":
+        if yDrop > SCREEN_HEIGHT // 2 - 50:
+            yDrop -= 20
         screen.fill(BLUE)
         screen.blit(
             go_button,
-            (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 50)
+            (SCREEN_WIDTH // 2 - 150, yDrop)
         )
+        go_button_rect.topleft = (SCREEN_WIDTH // 2 - 150, yDrop)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        if pygame.mouse.get_pressed()[0]:
+        if (yDrop <= SCREEN_HEIGHT // 2 - 50 and
+           pygame.mouse.get_pressed()[0]):
             if go_button_rect.collidepoint(pygame.mouse.get_pos()):
-                GAME_STATE = "play"
+                GAME_STATE = "menu"
                 screen.fill(BLUE)
                 pygame.display.update()
                 pygame.time.wait(500)
