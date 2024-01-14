@@ -6,17 +6,21 @@ My toddler wanted to join me in playing video games, but she still struggles wit
 
 1. You must have python installed.
 
-2. Downloading the files from [github](https://github.com/jonalfarlinga/mlp-dash)
+2. Download the files from [github](https://github.com/jonalfarlinga/mlp-dash)
 
-3. Double-click (or run in teminal) the <install.bat> file.
+3. Double-click (or run in teminal) the `install.bat` file.
 
 # Run the game
 
-1. Double-click (or run in terminal) the <run.bat> file.
+1. Double-click (or run in terminal) the `run.bat` file.
+
+# Gameplay
+
+Rainbow Dash moves to any place the player clicks. If she runs into a cloud, she pops it. Once the skies are clear, Rainbow has saved the day! But beware the changelings hiding in the clouds! If Rainbow gets hit 3 times, she can't go on, and the game is over.
 
 # Dev road-map
 
-1. Add hazards
+1. ~~Add hazards~~
 2. Add keyboard actions
 
 # Copyright
